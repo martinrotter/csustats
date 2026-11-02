@@ -1,3 +1,5 @@
+import Papa from '../../vendor/papaparse/papaparse.min.js';
+
 /* CSV parsing and indexing stay off the UI thread. One full year is kept in RAM. */
 let activeYear = null;
 let areaIndex = new Map();
@@ -14,7 +16,7 @@ function numberValue(raw) {
 function snapshot(codes) {
   const values = {};
   for (const [indicator, column] of columns) {
-    values[indicator] = codes.map(code => {
+    values[indicator] = codes.map((code) => {
       const index = areaIndex.get(code);
       const value = index === undefined ? NaN : column[index];
       return value === -Infinity ? 'i.d.' : Number.isFinite(value) ? value : null;
@@ -22,7 +24,7 @@ function snapshot(codes) {
   }
   return { year: activeYear, codes, values, rowCount };
 }
-self.onmessage = event => {
+self.onmessage = (event) => {
   const { id, type, year, blob, codes, knownCodes } = event.data;
   try {
     if (type === 'query' && year === activeYear) {
@@ -36,7 +38,7 @@ self.onmessage = event => {
     rowCount = 0;
     let validHeader = false;
     let failures = 0;
-    self.Papa.parse(blob, {
+    Papa.parse(blob, {
       delimiter: ',',
       skipEmptyLines: 'greedy',
       chunkSize: 1024 * 1024,
@@ -45,12 +47,23 @@ self.onmessage = event => {
           if (result.errors.length) throw new Error('CSV má neplatnou strukturu.');
           for (const row of result.data) {
             if (!validHeader) {
-              const header = row.map(value => String(value).replace(/^\uFEFF/, '').trim().toLowerCase());
-              if (header.join(',') !== 'rok,kodukaz,koduzemi,hodnota') throw new Error('Neočekávaná hlavička CSV.');
+              const header = row.map((value) =>
+                String(value)
+                  .replace(/^\uFEFF/, '')
+                  .trim()
+                  .toLowerCase(),
+              );
+              if (header.join(',') !== 'rok,kodukaz,koduzemi,hodnota')
+                throw new Error('Neočekávaná hlavička CSV.');
               validHeader = true;
               continue;
             }
-            if (row.length !== 4 || Number(row[0]) !== year || !/^\d{6}$/.test(row[1]) || !/^\d{6}$/.test(row[2])) {
+            if (
+              row.length !== 4 ||
+              Number(row[0]) !== year ||
+              !/^\d{6}$/.test(row[1]) ||
+              !/^\d{6}$/.test(row[2])
+            ) {
               throw new Error('Soubor obsahuje neplatný řádek nebo nesprávný rok.');
             }
             const indicator = row[1];
@@ -58,11 +71,17 @@ self.onmessage = event => {
             if (!areaIndex.has(code)) areaIndex.set(code, areaIndex.size);
             const area = areaIndex.get(code);
             if (area >= CAPACITY) throw new Error('Soubor přesahuje kapacitu číselníku obcí.');
-            if (!columns.has(indicator)) columns.set(indicator, new Float64Array(CAPACITY).fill(NaN));
+            if (!columns.has(indicator))
+              columns.set(indicator, new Float64Array(CAPACITY).fill(NaN));
             columns.get(indicator)[area] = numberValue(row[3]);
             rowCount++;
           }
-          self.postMessage({ id, type: 'progress', value: Math.min(99, result.meta.cursor / blob.size * 100), rows: rowCount });
+          self.postMessage({
+            id,
+            type: 'progress',
+            value: Math.min(99, (result.meta.cursor / blob.size) * 100),
+            rows: rowCount,
+          });
         } catch (error) {
           failures++;
           parser.abort();
@@ -78,7 +97,11 @@ self.onmessage = event => {
         activeYear = year;
         self.postMessage({ id, type: 'result', data: snapshot(codes) });
       },
-      error(error) { self.postMessage({ id, type: 'error', message: error.message }); },
+      error(error) {
+        self.postMessage({ id, type: 'error', message: error.message });
+      },
     });
-  } catch (error) { self.postMessage({ id, type: 'error', message: error.message }); }
+  } catch (error) {
+    self.postMessage({ id, type: 'error', message: error.message });
+  }
 };

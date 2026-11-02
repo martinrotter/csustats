@@ -1,0 +1,32 @@
+{
+  "name": "csustats",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Client-only explorer of Czech municipal statistics from ČSÚ MOS",
+  "type": "module",
+  "license": "MIT",
+  "author": "Martin Rotter",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/martinrotter/csustats.git"
+  },
+  "homepage": "https://martinrotter.github.io/csustats/",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "build:check": "node scripts/build.mjs --check",
+    "test": "node --test",
+    "check": "npm run format:check && npm test && npm run build",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "preview": "node scripts/preview.mjs",
+    "vendor:check": "node scripts/vendor.mjs",
+    "vendor:restore": "node scripts/vendor.mjs --restore"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2",
+    "prettier": "3.9.10"
+  }
+}

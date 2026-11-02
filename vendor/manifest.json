@@ -1,0 +1,111 @@
+{
+  "packages": [
+    {
+      "name": "papaparse",
+      "version": "5.5.3",
+      "license": "MIT",
+      "files": [
+        {
+          "path": "vendor/papaparse/papaparse.min.js",
+          "url": "https://cdn.jsdelivr.net/npm/papaparse@5.5.3/papaparse.min.js",
+          "license": false,
+          "sha256": "3553fb8bdf5b8004ce5531e6827e81c8b34e7b3992677967754544064e97b016"
+        },
+        {
+          "path": "vendor/papaparse/LICENSE",
+          "url": "https://cdn.jsdelivr.net/npm/papaparse@5.5.3/LICENSE",
+          "license": true,
+          "sha256": "99aa68e4b42758b09828a46515f70369e5463458ab7a990189f641af2b8d9b4e"
+        }
+      ]
+    },
+    {
+      "name": "tabulator-tables",
+      "version": "6.3.1",
+      "license": "MIT",
+      "files": [
+        {
+          "path": "vendor/tabulator/tabulator.min.js",
+          "url": "https://cdn.jsdelivr.net/npm/tabulator-tables@6.3.1/dist/js/tabulator.min.js",
+          "license": false,
+          "sha256": "e952272c3b2afa4ebb60cef5db8cbe9cbaabaa52b50c3cd3d22993ca5215a6ff"
+        },
+        {
+          "path": "vendor/tabulator/tabulator.min.css",
+          "url": "https://cdn.jsdelivr.net/npm/tabulator-tables@6.3.1/dist/css/tabulator.min.css",
+          "license": false,
+          "sha256": "a46d8051944c745cae8a7976b4fb9d93d894d20876a4521cc4f6f035cfef52ea"
+        },
+        {
+          "path": "vendor/tabulator/LICENSE",
+          "url": "https://cdn.jsdelivr.net/npm/tabulator-tables@6.3.1/LICENSE",
+          "license": true,
+          "sha256": "6031e51b8450fa6047887f018951c8cf1456d98a5a08291774410c13696de18e"
+        }
+      ]
+    },
+    {
+      "name": "echarts",
+      "version": "6.0.0",
+      "license": "Apache-2.0",
+      "files": [
+        {
+          "path": "vendor/echarts/echarts.min.js",
+          "url": "https://cdn.jsdelivr.net/npm/echarts@6.0.0/dist/echarts.min.js",
+          "license": false,
+          "sha256": "baa8dfe7e1d9336b98e8986ba7e20ea15e7cdbea1ef42a59d59478632fa45a1d"
+        },
+        {
+          "path": "vendor/echarts/LICENSE",
+          "url": "https://cdn.jsdelivr.net/npm/echarts@6.0.0/LICENSE",
+          "license": true,
+          "sha256": "634293835b43a6dd2094fa39182a3d9a6b9ca43b7fdb9ac354e8037af2a3093a"
+        },
+        {
+          "path": "vendor/echarts/NOTICE",
+          "url": "https://cdn.jsdelivr.net/npm/echarts@6.0.0/NOTICE",
+          "license": true,
+          "sha256": "dc0d9176413c3d96d0ac40b39b1dbb11e3043b7b010be560f5dfe66bd3774ae1"
+        },
+        {
+          "path": "vendor/echarts/LICENSE-d3",
+          "url": "https://cdn.jsdelivr.net/npm/echarts@6.0.0/licenses/LICENSE-d3",
+          "license": true,
+          "sha256": "e1211892da0b0e0585b7aebe8f98c1274fba15bafe47fa1f4ee8a7a502c06304"
+        }
+      ]
+    },
+    {
+      "name": "zrender",
+      "version": "6.0.0",
+      "license": "BSD-3-Clause",
+      "files": [
+        {
+          "path": "vendor/zrender/LICENSE",
+          "url": "https://cdn.jsdelivr.net/npm/zrender@6.0.0/LICENSE",
+          "license": true,
+          "sha256": "a681e9d183c72b4af4856935893805eb48c08f0f5a3f260203db7444c20fb98a"
+        }
+      ]
+    },
+    {
+      "name": "tslib",
+      "version": "2.3.0",
+      "license": "0BSD",
+      "files": [
+        {
+          "path": "vendor/tslib/LICENSE.txt",
+          "url": "https://cdn.jsdelivr.net/npm/tslib@2.3.0/LICENSE.txt",
+          "license": true,
+          "sha256": "210b19e543130388c68654b7497e967119ce17145f66ab7d85688fbd70f08751"
+        },
+        {
+          "path": "vendor/tslib/CopyrightNotice.txt",
+          "url": "https://cdn.jsdelivr.net/npm/tslib@2.3.0/CopyrightNotice.txt",
+          "license": true,
+          "sha256": "dd835e67a9a297da32f9467d7677a5d02c8e50e10f15da43b810147c79c04b9b"
+        }
+      ]
+    }
+  ]
+}

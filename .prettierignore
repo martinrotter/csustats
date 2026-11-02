@@ -1,0 +1,8 @@
+node_modules/
+vendor/
+docs/
+.cache/
+.local/
+coverage/
+artifacts/
+package-lock.json

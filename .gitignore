@@ -1,0 +1,24 @@
+# Local dependencies and tooling
+/node_modules/
+/.cache/
+/.local/
+/coverage/
+/artifacts/
+*.log
+
+# Local credentials and environment overrides
+.env
+.env.*
+!.env.example
+
+# Editor and OS files
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.swp
+*.tmp
+
+# Generated single-file site is deployed by GitHub Actions, not committed.
+/docs/
