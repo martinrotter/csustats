@@ -7,8 +7,10 @@ import { createWorker } from './helpers/worker.js';
 const source = await bundleWorker();
 const fixture = await readFile(new URL('./fixtures/municipalities.csv', import.meta.url), 'utf8');
 const requestData = {
-  type: 'load',
-  year: 2025,
+  type: 'index-csv',
+  period: '2025',
+  indexKey: 'fixture:2025',
+  schema: { time: 'rok', metric: 'kodukaz', entity: 'koduzemi', value: 'hodnota' },
   knownCodes: ['552429', '568392'],
   codes: ['552429', '568392'],
 };
@@ -23,15 +25,19 @@ test('the production worker preserves zero, confidential, empty, and decimal val
   assert.equal(result.values['121800'][0], 'i.d.');
   assert.equal(result.values['113000'][0], null);
   assert.equal(result.values['010300'][1], null);
-  const changed = await request({ type: 'query', year: 2025, codes: ['599999', '552429'] });
+  const changed = await request({
+    type: 'query-index',
+    indexKey: 'fixture:2025',
+    codes: ['599999', '552429'],
+  });
   assert.equal(changed.values['999999'][0], -12.5);
   assert.equal(changed.values['110900'][1], 0);
 });
 
 test('the worker rejects mismatched years and HTML error pages', async () => {
   await assert.rejects(
-    createWorker(source)({ ...requestData, year: 2024, blob: new Blob([fixture]) }),
-    /nesprávný rok/,
+    createWorker(source)({ ...requestData, period: '2024', blob: new Blob([fixture]) }),
+    /nesprávné období/,
   );
   await assert.rejects(
     createWorker(source)({ ...requestData, blob: new Blob(['<html>Server error</html>']) }),

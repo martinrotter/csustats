@@ -1,0 +1,75 @@
+{
+  "version": "2.0",
+  "class": "dataset",
+  "label": "Regionální školství - základní ukazatele - vlastní výběr",
+  "source": "DataStat – databáze ČSÚ",
+  "note": [null],
+  "id": ["IndicatorType", "Uz02", "CASSR"],
+  "size": [1, 1, 3],
+  "role": {
+    "geo": ["Uz02"],
+    "metric": ["IndicatorType"],
+    "time": ["CASSR"]
+  },
+  "dimension": {
+    "IndicatorType": {
+      "label": "Ukazatel",
+      "note": [""],
+      "category": {
+        "index": {
+          "6043A": 0
+        },
+        "label": {
+          "6043A": "Mateřské školy - počet škol"
+        },
+        "unit": {
+          "6043A": {
+            "decimals": 0,
+            "label": "četnostní jednotka",
+            "symbol": "četnostní jednotka"
+          }
+        }
+      }
+    },
+    "Uz02": {
+      "label": "Území",
+      "category": {
+        "index": {
+          "CZ": 0
+        },
+        "label": {
+          "CZ": "Česko"
+        }
+      }
+    },
+    "CASSR": {
+      "label": "Školní roky",
+      "category": {
+        "index": {
+          "SR2023": 0,
+          "SR2024": 1,
+          "SR2025": 2
+        },
+        "label": {
+          "SR2023": "2023/2024",
+          "SR2024": "2024/2025",
+          "SR2025": "2025/2026"
+        }
+      }
+    }
+  },
+  "value": [5398.0, 5410.0, 5409.0],
+  "status": {},
+  "extension": {
+    "published": [1, 2, 3],
+    "publishedCode": {
+      "1": "2024-09-22T22:00Z",
+      "2": "2025-04-24T22:00Z",
+      "3": "2026-08-27T07:00Z"
+    },
+    "status": {
+      "label": {}
+    }
+  },
+  "updated": "2026-08-27T07:00Z"
+}

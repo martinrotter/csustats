@@ -30,8 +30,8 @@ export async function renderSite() {
   }
   const content = {
     VENDOR_CSS: ['vendor/tabulator/tabulator.min.css', 'style'],
-    APP_CSS: ['src/styles/base.css', 'style'],
-    DATA_UI_CSS: ['src/styles/data-ui.css', 'style'],
+    APP_CSS: ['src/styles/workbench.css', 'style'],
+    DATA_UI_CSS: ['src/styles/table.css', 'style'],
     PAPA: ['vendor/papaparse/papaparse.min.js', 'script'],
     ECHARTS: ['vendor/echarts/echarts.min.js', 'script'],
     TABULATOR: ['vendor/tabulator/tabulator.min.js', 'script'],

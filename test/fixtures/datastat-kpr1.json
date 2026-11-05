@@ -1,0 +1,77 @@
+{
+  "version": "2.0",
+  "class": "dataset",
+  "label": "Bazický index salda indikátoru důvěry - vlastní výběr",
+  "source": "DataStat – databáze ČSÚ",
+  "note": [
+    "V lednu 2026 dochází k standardní úpravě základny pro výpočet bazických indexů. Pro rok 2026 bude bazické období vypočteno jako průměr údajů za období leden 2003 až prosinec 2025. Dlouhodobý průměr se přepočítává jednou ročně."
+  ],
+  "id": ["IndicatorType", "CasM", "Uz0"],
+  "size": [1, 3, 1],
+  "role": {
+    "geo": ["Uz0"],
+    "metric": ["IndicatorType"],
+    "time": ["CasM"]
+  },
+  "dimension": {
+    "IndicatorType": {
+      "label": "Ukazatel",
+      "note": [""],
+      "category": {
+        "index": {
+          "5860": 0
+        },
+        "label": {
+          "5860": "Souhrnný indikátor"
+        },
+        "unit": {
+          "5860": {
+            "decimals": 1,
+            "label": "procento",
+            "symbol": "%"
+          }
+        }
+      }
+    },
+    "CasM": {
+      "label": "Měsíce",
+      "category": {
+        "index": {
+          "2026-08": 0,
+          "2026-09": 1,
+          "2026-10": 2
+        },
+        "label": {
+          "2026-08": "srpen 2026",
+          "2026-09": "září 2026",
+          "2026-10": "říjen 2026"
+        }
+      }
+    },
+    "Uz0": {
+      "label": "Území",
+      "category": {
+        "index": {
+          "CZ": 0
+        },
+        "label": {
+          "CZ": "Česko"
+        }
+      }
+    }
+  },
+  "value": [100.5, 99.5, 97.9],
+  "status": {},
+  "extension": {
+    "published": [1, 2, 3],
+    "publishedCode": {
+      "1": "2026-08-24T07:00Z",
+      "2": "2026-09-24T07:00Z",
+      "3": "2026-10-26T08:00Z"
+    },
+    "status": {
+      "label": {}
+    }
+  },
+  "updated": "2026-10-26T08:00Z"
+}

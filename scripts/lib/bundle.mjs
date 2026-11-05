@@ -20,4 +20,4 @@ async function bundle(entry) {
 }
 
 export const bundleApplication = () => bundle('src/main.js');
-export const bundleWorker = () => bundle('src/data/csv-worker.js');
+export const bundleWorker = () => bundle('src/data/index-worker.js');

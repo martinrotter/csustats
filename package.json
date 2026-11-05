@@ -1,8 +1,8 @@
 {
-  "name": "csustats",
-  "version": "1.0.0",
+  "name": "narodni-data",
+  "version": "2.0.0",
   "private": true,
-  "description": "Client-only explorer of Czech municipal statistics from ČSÚ MOS",
+  "description": "Client-only explorer of Czech national open data: ČSÚ DataStat, MOS, CSV and JSON-stat",
   "type": "module",
   "license": "MIT",
   "author": "Martin Rotter",
@@ -17,7 +17,7 @@
   "scripts": {
     "build": "node scripts/build.mjs",
     "build:check": "node scripts/build.mjs --check",
-    "test": "node --test",
+    "test": "node --test test/*.test.js",
     "check": "npm run format:check && npm test && npm run build",
     "format": "prettier --write .",
     "format:check": "prettier --check .",

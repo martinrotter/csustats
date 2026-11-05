@@ -24,13 +24,20 @@ test('template insertion validates tokens and escapes closing script tags', () =
   assert.throws(() => replaceToken('<!-- APP --><!-- APP -->', 'APP', ''), /Expected one/);
 });
 
-test('all static DOM references used by features exist in the template', async () => {
+test('all static DOM references in the actual application exist in the template', async () => {
   const template = await readFile(new URL('../src/template.html', import.meta.url), 'utf8');
   const ids = [...template.matchAll(/\bid="([^"]+)"/g)].map((match) => match[1]);
   assert.equal(new Set(ids).size, ids.length, 'Duplicate DOM IDs');
-  for (const file of await readdir(new URL('../src/features/', import.meta.url))) {
-    const source = await readFile(new URL('../src/features/' + file, import.meta.url), 'utf8');
-    for (const [, id] of source.matchAll(/app\.\$\(['"]([a-z][\w-]*)['"]\)/g))
-      assert(ids.includes(id), `${file} references absent #${id}`);
+  for (const directory of ['ui', 'app', 'data']) {
+    for (const file of (await readdir(new URL(`../src/${directory}/`, import.meta.url))).filter(
+      (name) => name.endsWith('.js'),
+    )) {
+      const source = await readFile(
+        new URL(`../src/${directory}/${file}`, import.meta.url),
+        'utf8',
+      );
+      for (const [, id] of source.matchAll(/(?:app\.|this\.)?\$\(['"]([a-z][\w-]*)['"]\)/g))
+        assert(ids.includes(id), `${directory}/${file} references absent #${id}`);
+    }
   }
 });

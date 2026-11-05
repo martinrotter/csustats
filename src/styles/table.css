@@ -1,0 +1,115 @@
+.tabulator {
+  font-size: 12px;
+  border: 1px solid #dce4ee;
+  border-top: 0;
+  background: #fff;
+  font-family: inherit;
+}
+.tabulator .tabulator-header {
+  background: #f4f7fb;
+  color: #526882;
+  border-bottom: 1px solid #dce4ee;
+  font-size: 11px;
+  font-weight: 600;
+}
+.tabulator .tabulator-header .tabulator-col {
+  background: transparent;
+  border-right: 1px solid #e8edf4;
+}
+.tabulator .tabulator-header .tabulator-col .tabulator-col-content {
+  padding: 11px 12px;
+}
+.tabulator-row {
+  background: #fff;
+  border-bottom: 1px solid #edf1f6;
+  color: #304762;
+  min-height: 43px;
+}
+.tabulator-row.tabulator-row-even {
+  background: #fafcfe;
+}
+.tabulator-row:hover {
+  background: #eef5fc !important;
+}
+.tabulator-row .tabulator-cell {
+  border-right: 1px solid #f0f3f7;
+  padding: 9px 12px;
+  font-variant-numeric: tabular-nums;
+  white-space: normal;
+}
+.table-label {
+  font-size: 11px;
+  line-height: 1.4;
+}
+.table-label small {
+  display: block;
+  font-size: 9px;
+  color: #8d9bad;
+  margin-top: 2px;
+}
+.table-value {
+  font-weight: 600;
+  color: #284c71;
+}
+.table-missing {
+  display: inline-block;
+  background: #f0f3f7;
+  color: #8190a3;
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 10px;
+}
+.table-status {
+  font-size: 10px;
+  color: #9a712e;
+}
+.outlier-badge {
+  display: inline-block;
+  color: #66778e;
+  font-size: 10px;
+  padding: 3px 6px;
+  border-radius: 4px;
+  background: #f0f3f7;
+}
+.outlier-badge.is-outlier {
+  color: #9a4d0b;
+  background: #fff0dc;
+  font-weight: 600;
+}
+.tabulator .tabulator-footer {
+  border-top: 1px solid #dce4ee;
+  background: #f7f9fc;
+  color: #6e829a;
+}
+.tabulator .tabulator-footer .tabulator-page {
+  border: 1px solid #d8e1ec;
+  border-radius: 4px;
+  background: white;
+  color: #4d6684;
+  font-size: 11px;
+}
+.tabulator .tabulator-footer .tabulator-page.active {
+  background: #2563a6;
+  color: white;
+}
+.tabulator-placeholder {
+  color: #7c8da2 !important;
+  font-size: 12px;
+}
+.tabulator-tableholder {
+  overscroll-behavior-x: contain;
+}
+@media (max-width: 760px) {
+  .tabulator {
+    font-size: 11px;
+  }
+  .tabulator-row .tabulator-cell {
+    padding: 8px 10px;
+  }
+  .tabulator .tabulator-header .tabulator-col .tabulator-col-content {
+    padding: 10px;
+  }
+  .tabulator .tabulator-footer .tabulator-paginator {
+    white-space: normal;
+  }
+}

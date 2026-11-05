@@ -13,8 +13,7 @@ if (check) {
   } catch {
     /* Missing artifact is stale. */
   }
-  if (current !== html)
-    throw new Error('docs/index.html is stale. Run npm run build and commit the output.');
+  if (current !== html) throw new Error('docs/index.html is stale. Run npm run build.');
   console.log('OK: docs/index.html matches the sources and verified vendor files.');
 } else {
   await mkdir(resolveProject('docs/'), { recursive: true });

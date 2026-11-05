@@ -1,81 +1,132 @@
-# Vývoj a nasazení
+# Architektura a vývoj
 
-## Prostředí a příkazy
+## Výstup a nasazení
 
-Použijte Node.js 22 nebo novější. `npm ci` nainstaluje přesné verze z lockfile.
-esbuild a Prettier jsou jen vývojové závislosti. `vendor/` už obsahuje knihovny
-potřebné pro prohlížeč; běžný build nic dalšího nestahuje.
+Node.js 22+, přesné dev závislosti v lockfile. `npm ci` instaluje esbuild
+a Prettier. Runtime knihovny jsou připnuté ve `vendor/`. `npm run build` ověřuje
+SHA-256, sestavuje aplikaci a worker a vkládá je do HTML spolu se styly, knihovnami,
+územním číselníkem a úplnými licenčními texty. Build nepotřebuje veřejná datová API.
 
-| Příkaz                   | Význam                                                                  |
-| ------------------------ | ----------------------------------------------------------------------- |
-| `npm run build`          | Vytvoří samostatné `docs/index.html` a značku `.nojekyll`.              |
-| `npm run preview`        | Servíruje jen hotovou stránku na lokálním rozhraní; volitelně `PORT`.   |
-| `npm test`               | Spustí testy čisté logiky, skutečného zabaleného workeru a HTML buildu. |
-| `npm run format`         | Zformátuje vlastní zdroje, dokumentaci a konfiguraci.                   |
-| `npm run check`          | Ověří formát, spustí testy a vytvoří aktuální HTML.                     |
-| `npm run build:check`    | Porovná místní výstup s aktuálními zdroji bez přepisování.              |
-| `npm run vendor:check`   | Ověří SHA-256 všech převzatých souborů a licencí.                       |
-| `npm run vendor:restore` | Obnoví chybějící vendor soubory z připnutých URL a ověří hash.          |
+Výstup `docs/index.html` se necommituje. Push do `master` provede `npm run check`
+a nasadí `docs/` přes GitHub Actions. PR prochází stejnými kontrolami bez nasazení.
+Nastavení Pages musí používat **GitHub Actions**, nikoliv publikování větve.
 
-## Architektura
+`npm run preview` servíruje pouze hotové HTML na loopback rozhraní. Volitelná
+proměnná `PORT` mění port; výchozí je 4317. Žádné zdrojové soubory nezpřístupňuje.
 
-`src/main.js` vytváří aplikaci pomocí `src/app/create-app.js`. Každá instance má
-vlastní kontext v `src/app/context.js`; ten drží stav výběru, cache, grafů a
-probíhajících operací.
+## Datový model
 
-Jednotlivé části `src/features/` jsou továrny přijímající tento kontext `app`.
-Vrátí pojmenované operace, které se zaregistrují před spuštěním aplikace. Křížové
-volání `app.getYear(...)` či `app.renderSelection()` tak vždy míří na společnou
-instanci. Továrny při registraci neprovádějí síťové požadavky ani neobsluhují DOM.
+`src/core/cube.js` normalizuje vstup na kostku s popsanými dimenzemi, kategoriemi,
+hodnotami, stavy, jednotkami a původem. Role dimenze může být časová, územní,
+ukazatelová nebo obecná. Kódy jsou řetězce. Číselné hodnoty jsou `Float64Array`,
+chybějící hodnoty uvnitř `NaN`; při exportu a projekci jsou `null`. Stavy jsou
+samostatná mapa, aby se důvěrnost nezaměnila s chybějícím či nulovým údajem.
 
-| Část                               | Odpovědnost                                                          |
-| ---------------------------------- | -------------------------------------------------------------------- |
-| `downloads`                        | HTTP, číselníky, CSV worker a roční výřezy.                          |
-| `storage`                          | IndexedDB, omezená náhradní cache v RAM a přehled uložených souborů. |
-| `transfers`                        | Zrušení operace, průběh souborů i celé dávky a stav dialogu.         |
-| `data`                             | Územní historie, hodnoty a výpočty ukazatelů.                        |
-| `places`, `years`                  | Jednotlivý i hromadný výběr a dialog roků.                           |
-| `indicators`                       | Pokrytí dat, filtrování a metodika.                                  |
-| `overview`, `charts`               | Tabulky, přehled roku, porovnání a časové řady.                      |
-| `exports`                          | CSV a PNG vytvořené na klientovi.                                    |
-| `feedback`, `navigation`, `events` | Zprávy, URL, přepínání pohledů a obsluha ovládacích prvků.           |
+Počet buněk kontrolujeme před alokací i před dotazem. Výchozí maximum je 150 000.
+Projekce grafu vybírá jednu veličinu, osu, volitelnou dimenzi řad a explicitní
+hodnoty ostatních dimenzí. Nepoužívá implicitní agregace. Zdrojová kostka zůstává
+zachovaná pro tabulku a export.
 
-Čisté algoritmy jsou v `src/core/` a nevyžadují prohlížeč. Vstup workeru
-`src/data/csv-worker.js` se sestavuje samostatně společně s Papa Parse. Prohlížeč
-jej spouští z Blob URL; nepotřebuje další místní soubor ani modulový import.
+`src/data/datastat.js` načítá katalog, definice, oficiální výběry a číselníky.
+Varianty seskupuje podle typu dimenze. Respektuje zakázané kombinace ukazatelů
+a dimenzí z metadat. POST výběr používá `IndicatorType`, skutečné kódy dimenzí
+a explicitní seznamy položek včetně hierarchických úrovní. Pro data volí JSON-stat.
+Pomocné endpointy odhadů velikosti nejsou podmínkou načítání.
 
-## Build a výstup
+`src/data/csv-source.js` je obecná čtečka dlouhého CSV rozděleného po obdobích.
+`src/data/profiles.json` deklaruje URL, mapování sloupců, číselníky, časové pokrytí
+a pomocné ukazatele jednotlivých sad. MOS je jeden profil, bez vlastní JS čtečky.
+Worker `index-worker.js` dostává schéma sloupců a identifikátor indexu; podporuje
+textové kódy, různá období i pořadí sloupců. Původní IndexedDB `csustats-mos-v1`,
+store `files` a historické cache klíče zůstávají kompatibilní.
 
-Build ověří `vendor/manifest.json`, sestaví ES moduly aplikace a workeru přes
-esbuild a vloží vše do HTML šablony spolu se styly, katalogem krajů a úplnými
-licencemi. Záměrně vytváří jediný soubor bez závislosti na CDN, takže podporuje
-GitHub Pages i přímé otevření z disku.
+`core/dimensions.js` sdílí vyhledávání ve skupinách, hierarchie a historickou
+platnost kategorií napříč zdroji. `core/selection.js` kontroluje normalizované
+výběry a omezení. `data/sources.js` registruje zdrojové adaptéry. UI ani projekce
+grafů nevětví chování podle ID konkrétní sady nebo konkrétního ukazatele.
+Poměrové přepočty používají zvolený jmenovatel dostupný v načtených datech nebo
+v pomocných údajích deklarovaných profilem. Nespoléhají na jeden populační kód.
 
-`docs/` je generovaný a ignorovaný v Gitu. `.cache/`, `.local/`, testovací výstupy,
-logy, soubory editorů a místní prostředí se také necommitují. Konce řádků vlastních
-zdrojů jsou sjednocené na LF; vendor soubory zůstávají beze změny bajtů.
+`src/data/tabular.js` zpracovává CSV a ploché JSON záznamy. Import vyžaduje
+jednoznačné souřadnice. Parsery běží v Blob workeru, vloženém v HTML.
 
-## Automatické publikování
+## Síť a limity
 
-V repozitáři jednou nastavte **Settings → Pages → Source → GitHub Actions**.
-Pro tento workflow se nepoužívá volba **Deploy from a branch / master / docs**.
-Adresář `docs/` vzniká až na runneru a publikuje se jako Pages artifact.
+Všechna volání veřejných API i souborů MOS jdou přes `ApiClient` v `core/http.js`.
+Povolené jsou pouze HTTPS hosty `data.csu.gov.cz` a `opendata.csu.gov.cz` a metody
+GET, HEAD a čtecí POST. Nepoužíváme cookies ani přihlašovací údaje.
 
-Push do `master` automaticky provede instalaci, kontrolu formátu, testy, build a
-nasazení. Pull requesty spouštějí stejný build bez nasazení. Deploy má jen práva
-`pages: write` a `id-token: write`; kontrolní job má pouze čtení repozitáře.
-Výsledná URL je v Actions u deploymentu prostředí `github-pages`.
+- Jedna fronta a jeden společný rozpočet pro oba hosty; max. 30 startů/minutu,
+  alespoň 1,2 s mezi starty a jeden přenos v dané frontě.
+- Web Locks koordinují rezervace kvóty a celé přenosy mezi kartami. Místní
+  úložiště zachovává časové značky a pozastavení i přes obnovení stránky.
+- Bez těchto funkcí funguje omezení v rámci jedné instance; sdílení mezi kartami
+  pak není plně zaručené. Kvóta aplikace není zveřejněný limit ČSÚ a nenahrazuje
+  reakci na konkrétní odpověď serveru ani omezení společné veřejné IP adresy.
+- HTTP 429 pozastaví frontu nejméně na minutu a respektuje delší `Retry-After`.
+  Přijímáme počet sekund i HTTP datum, s ohledem na čas serveru.
+- HTTP 403 pozastaví frontu nejméně na 10 minut. 400/401/404/413 neopakujeme.
+- 408/429/500/502/503/504 dovolují nejvýše dvě opakování s prodlužovaným čekáním.
+  Při delší serverové pauze se požadavek ukončí s uvedením chyby; další dotaz
+  čeká ve frontě. Síťové/CORS chyby se slepě neopakují.
+- Zohledňujeme zpřístupněné `RateLimit-Remaining`, `RateLimit-Reset`
+  a `X-RateLimit-*`. Prohlížeč může neexponované hlavičky skrýt.
+- Shodné souběžné dotazy sdílejí přenos. Zrušení jednoho odběratele neruší
+  ostatní. Přenos se ukončí, když nezůstane žádný odběratel.
+- Hlídáme deklarovanou i skutečně přenesenou velikost a časový limit. Neznámou
+  či komprimovanou délku nezobrazujeme jako falešné procento.
 
-Veškeré úpravy pro běžné zveřejnění tedy znamenají jen commit a push zdrojů.
-Lokální build je dobrovolný náhled, nikoliv podmínka nasazení.
+Přehled UI uchovává 100 posledních síťových odpovědí se stavem, trváním a bajty.
+HTTP 0 označuje síťovou chybu či zrušení, nikoli skutečný HTTP status serveru.
+Export obrázku používá místní datovou URL, nikoli další API.
 
-## Aktualizace knihoven a dat
+## Cache a UI
 
-Verze knihoven jsou explicitní ve vendor manifestu; aktualizace je vědomá změna
-souborů, licencí, URL a kontrolních součtů. `vendor:restore` existující upravené
-soubory nepřepisuje. Změny verzí ověřte testy a v prohlížeči a ponechte všechny
-požadované copyrighty v `THIRD_PARTY_NOTICES.md` a v buildu.
+`src/core/analysis.js` připravuje přepočtené sloupce, souhrny a Tukeyho detekci
+odlehlých hodnot. Poměry v tabulce a grafu sdílejí `ratioTransform` z `cube.js`;
+jmenovatel se hledá podle všech souřadnic kromě ukazatele. Souhrny používají
+kompenzovaný součet a zvlášť počítají dostupnost původních i přepočtených hodnot.
+Neúplné souhrny do detekce nevstupují. Srovnatelné skupiny zachovávají ostatní
+dimenze, ukazatel, jednotku a dostupnou úroveň hierarchie. Minimum je pět hodnot;
+kvartily používají interpolaci R7 a hranice jsou Q1/Q3 ± 1,5 IQR.
 
-Regionální katalog má vlastní zdroj a datum v `src/data/regions.json`. Jeho změny
-ověřte proti aktuálním názvům okresů v MOS. Automatické testy používají malé
-fixture a obejdou se bez přístupu na živý ČSÚ server.
+`src/ui/chart-items.js` spravuje nezávislý ruční výběr grafu. Stav obsahuje kódy
+`seriesIds`/`categoryIds`, nikoli názvy; `null` znamená automatický výběr,
+prázdné pole explicitně prázdný výběr. Tyto volby, řazení řad, dimenze srovnání
+a souhrnu a filtry tabulky se ukládají do stavu výběru a zachovají změnu jazyka.
+
+Katalog má platnost 24 h, definice/číselníky 7 dní, výběry DataStatu 6 h.
+Požadavky výslovně používají `Accept-Language: cs` nebo `en`; cache DataStatu
+rozlišuje jazyk metadat i dat. Klíč souběžného požadavku zahrnuje jazyk, fronta
+a rate limiting zůstávají společné. Worker dostává jazyk u každé zprávy.
+
+`src/i18n/index.js` spravuje jazyk, interpolaci, formátování a počáteční texty
+HTML. `src/i18n/en.json` obsahuje překlady českých zdrojových textů.
+Počáteční jazyk určuje sdílený odkaz, poté uložená ruční preference, poté
+`navigator.languages` (s náhradou `navigator.language`) a nakonec čeština.
+Regionální značky se párují podle základního jazyka; do preference se zapisuje
+pouze ruční přepnutí, nikoli jazyk ze sdíleného výběru. Dynamické
+UI používá `t` a HTML text `ht`; proměnné a zdrojová metadata se nepřekládají.
+Test ověřuje pokrytí statických textů, přístupných názvů, volání překladů a shodu
+zástupných parametrů. Při změně jazyka se popisky API znovu načtou podle původních
+kódů. Neodeslané filtry a konfigurace grafu zůstávají zachované; selhání obnovy
+vrátí původní data s výslovným upozorněním na jazyk zdrojových názvů.
+
+Roční MOS soubory se automaticky nestahují znovu; obnovení je explicitní. Trvalé úložiště
+má náhradu v omezené RAM. Ovladače grafu nepotřebují nové síťové dotazy.
+
+`src/app/workbench.js` řídí operace, rušení, stav URL a přepínání zdrojů.
+`src/ui/` odděluje katalog, dimenze, výsledky, import, přenosy a pomocné dialogy.
+Tabulator virtualizuje tabulku. ECharts poskytuje grafy, zoom, legendu a export
+do Canvas PNG či SVG. Uživatelské texty v HTML a tooltipech escapujeme.
+
+## Testy
+
+`npm run check` provádí formátování, deterministické testy a produkční build.
+Testy nevolají veřejná API. Pokrývají hustý i řídký JSON-stat, starší obálky,
+pořadí kategorií, CSV varianty, JSON záznamy, neplatná data, nuly, chráněné údaje,
+velké výběry, projekce a jednotky, HTTP frontu, retry/cooldown, rušení, deduplikaci,
+velikost přenosu, skutečný sestavený worker a samostatnost HTML výstupu.
+
+Změny knihoven jsou explicitní: soubory, zdrojové URL, SHA-256 i licence.
+`npm run vendor:restore` obnovuje jen chybějící soubory a kontroluje jejich hash.

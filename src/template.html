@@ -6,12 +6,12 @@
     <meta name="color-scheme" content="light" />
     <meta
       name="description"
-      content="Prozkoumejte a porovnejte české obce. Roční statistiky ČSÚ, přehledné tabulky a vývoj v čase. Vše ve vašem prohlížeči."
+      content="Národní data: nezávislý průzkumník otevřených dat ČSÚ. Datové sady, dimenze, interaktivní grafy a tabulky přímo ve vašem prohlížeči."
     />
-    <title>CsuStats · Obce v souvislostech</title>
+    <title>Národní data · Průzkumník otevřených dat</title>
     <link
       rel="icon"
-      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='11' fill='%230f6657'/%3E%3Cpath d='M10 28V19h5v9m3 0V10h5v18m3 0V15h5v13' stroke='%23fff' stroke-width='3'/%3E%3C/svg%3E"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='9' fill='%23182942'/%3E%3Cpath d='M10 28V18m10 10V9m10 19V14' stroke='%2367d1d0' stroke-width='5'/%3E%3C/svg%3E"
     />
     <style>
       <!-- VENDOR_CSS -->
@@ -24,604 +24,479 @@
     </style>
   </head>
   <body>
-    <svg class="svg-defs" aria-hidden="true">
-      <defs>
-        <symbol id="i-search" viewBox="0 0 24 24">
-          <circle cx="10.5" cy="10.5" r="6.5" />
-          <path d="m16 16 4.5 4.5" />
-        </symbol>
-        <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6" /></symbol>
-        <symbol id="i-download" viewBox="0 0 24 24">
-          <path d="M12 3v12m-5-5 5 5 5-5M4 16v5h16v-5" />
-        </symbol>
-        <symbol id="i-chart" viewBox="0 0 24 24">
-          <path d="M4 3v17h17M8 16v-5m5 5V6m5 10v-7" />
-        </symbol>
-        <symbol id="i-grid" viewBox="0 0 24 24">
-          <rect x="3" y="4" width="18" height="16" rx="2" />
-          <path d="M3 10h18M9 4v16" />
-        </symbol>
-        <symbol id="i-clock" viewBox="0 0 24 24">
-          <circle cx="12" cy="12" r="9" />
-          <path d="M12 7v5l3 2" />
-        </symbol>
-        <symbol id="i-info" viewBox="0 0 24 24">
-          <circle cx="12" cy="12" r="9" />
-          <path d="M12 11v6m0-10v1" />
-        </symbol>
-        <symbol id="i-refresh" viewBox="0 0 24 24">
-          <path d="M20 7v5h-5M4 17v-5h5M6 7a7 7 0 0 1 12-1l2 3M4 15l2 3a7 7 0 0 0 12-1" />
-        </symbol>
-        <symbol id="i-place" viewBox="0 0 24 24">
-          <path d="M19 10c0 5-7 11-7 11S5 15 5 10a7 7 0 1 1 14 0Z" />
-          <circle cx="12" cy="10" r="2.5" />
-        </symbol>
-      </defs>
-    </svg>
     <a class="skip-link" href="#main">Přejít k datům</a>
-    <header class="site-header">
-      <a href="#" class="brand" id="brand"
-        ><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span
-        ><span>Csu<span class="brand-light">Stats</span></span
-        ><span class="brand-caption">MĚSTA A OBCE V DATECH</span></a
+    <header class="app-header">
+      <a class="brand" href="#" id="home-link"
+        ><span class="brand-symbol" aria-hidden="true"><i></i><i></i><i></i></span
+        ><span>Národní data<small>Průzkumník otevřených dat</small></span></a
       >
-      <div class="header-right">
-        <span class="source-badge"><span class="status-dot"></span>Otevřená data ČSÚ</span
-        ><button class="button quiet" id="about-button">
-          <svg><use href="#i-info" /></svg>O aplikaci
-        </button>
-      </div>
+      <button class="button primary" id="choose-dataset">
+        Datové sady <span aria-hidden="true">⌘</span>
+      </button>
+      <div class="header-spacer"></div>
+      <select
+        id="language-select"
+        class="language-select"
+        aria-label="Jazyk aplikace"
+        data-i18n-skip
+      >
+        <option value="cs" lang="cs">Čeština</option>
+        <option value="en" lang="en">English</option>
+      </select>
+      <button class="network-status" id="network-button" title="Přehled požadavků a omezení API">
+        <span class="status-dot"></span><span id="network-label">API připraveno</span>
+      </button>
+      <button class="button subtle" id="cache-button">Místní data</button>
+      <button class="icon-button" id="help-button" aria-label="O aplikaci a zdrojích dat">?</button>
     </header>
-    <div id="notice" class="notice hidden" role="status"></div>
+    <div class="mobile-toolbar">
+      <button class="button" id="filters-toggle" aria-expanded="false" aria-controls="sidebar">
+        Výběr a filtry</button
+      ><span id="mobile-dataset">Vyberte datovou sadu</span>
+    </div>
     <div class="app-layout">
-      <aside class="sidebar" aria-label="Výběr obcí a dat">
-        <section class="sidebar-section">
-          <div class="eyebrow"><span>01</span> VAŠE OBCE</div>
-          <h2>Koho porovnáme?</h2>
-          <p class="muted small">Přidejte jednu nebo více obcí.</p>
-          <label class="search-field"
-            ><svg><use href="#i-search" /></svg
-            ><input
-              id="place-search"
-              type="search"
-              placeholder="Název obce nebo kód…"
-              aria-label="Hledat obec"
-              autocomplete="off"
-              disabled
-              aria-controls="place-results"
-              aria-expanded="false"
-          /></label>
-          <label class="sr-only" for="district-filter">Omezit hledání na okres</label
-          ><select id="district-filter" class="full" disabled>
-            <option value="">Všechny okresy</option>
-          </select>
-          <button id="bulk-places" class="button full bulk-open" disabled>
-            <svg><use href="#i-place" /></svg>Přidat okres nebo kraj
-          </button>
-          <div
-            id="place-results"
-            class="place-results hidden"
-            role="region"
-            aria-label="Výsledky hledání obcí"
-          ></div>
-          <div id="selection-toolbar" class="selection-toolbar hidden">
-            <b id="selection-count"></b
-            ><button id="clear-places" class="text-button">Vymazat výběr</button>
-          </div>
-          <div id="selected-places" class="selected-places"></div>
-          <button id="more-places" class="text-button hidden">Zobrazit další obce</button>
-          <p id="selection-hint" class="tiny muted">
-            Obce lze přidávat jednotlivě nebo po územních celcích.
+      <aside class="sidebar" id="sidebar" aria-label="Datová sada a filtry">
+        <div class="sidebar-heading">
+          <span class="eyebrow">Datová sada</span
+          ><button class="text-button" id="change-dataset">Změnit</button>
+        </div>
+        <div class="dataset-identity">
+          <span class="source-badge" id="dataset-source">ČSÚ · otevřená data</span>
+          <h1 id="dataset-title">Vyberte si data</h1>
+          <p id="dataset-description">
+            Obyvatelstvo, ekonomika, vzdělávání i statistiky jednotlivých obcí.
           </p>
-        </section>
-        <section class="sidebar-section">
-          <div class="eyebrow"><span>02</span> OBDOBÍ</div>
-          <label for="year-select" class="field-label">Rok přehledu</label>
-          <div class="year-row">
-            <select id="year-select" disabled aria-label="Rok přehledu"></select
-            ><button id="load-year" class="button primary" disabled>
-              Načíst <svg><use href="#i-arrow" /></svg>
-            </button>
-          </div>
-          <p id="year-hint" class="tiny muted">Roční soubor se načte až po výběru.</p>
-        </section>
-        <section class="sidebar-section storage-section">
-          <div class="eyebrow"><span>03</span> VAŠE DATA</div>
-          <div class="storage-state">
-            <span class="status-dot"></span><span id="cache-summary">Připravuji úložiště…</span>
-          </div>
-          <p class="tiny muted">Stažené roky zůstanou v tomto prohlížeči pro příští návštěvu.</p>
-          <button id="storage-button" class="text-button">
-            Spravovat stažené roky <span aria-hidden="true">↗</span>
-          </button>
-        </section>
-        <div class="sidebar-footer">
-          Přímo ze zdroje. Ve vašem prohlížeči.<br /><a
-            href="https://csu.gov.cz/produkty/databaze-mos-otevrena-data"
-            target="_blank"
-            rel="noopener noreferrer"
-            >Databáze MOS · ČSÚ ↗</a
+          <a id="dataset-source-link" target="_blank" rel="noopener noreferrer" hidden
+            >Otevřít u poskytovatele ↗</a
           >
+        </div>
+        <div class="filter-heading">
+          <h2>Dimenze výběru</h2>
+          <span id="dimension-count"></span>
+        </div>
+        <div id="dimension-controls" class="dimension-controls">
+          <p class="muted">Dostupné filtry se zobrazí podle vybrané datové sady.</p>
+        </div>
+        <div class="query-actions">
+          <p id="selection-size" class="query-estimate">Zatím není vybraná sada.</p>
+          <button class="button primary wide" id="load-data" disabled>
+            Načíst výběr <span aria-hidden="true">→</span>
+          </button>
+          <div class="query-secondary">
+            <button class="text-button" id="refresh-data" disabled>Obnovit ze zdroje</button
+            ><span id="dirty-label"></span>
+          </div>
+        </div>
+        <div class="sidebar-footer">
+          <span class="lock-mark" aria-hidden="true">◇</span>
+          <p>Zpracování ve vašem prohlížeči.<br />Data se neposílají na náš server.</p>
         </div>
       </aside>
-      <main id="main" tabindex="-1">
-        <div class="page-intro">
-          <div>
-            <div class="eyebrow">MALÁ MÍSTA. VELKÉ SOUVISLOSTI.</div>
-            <h1>Obce v souvislostech<span>.</span></h1>
-            <p class="intro-description">
-              Poznejte svou obec. Objevte rozdíly. Sledujte, co se mění.
-            </p>
-          </div>
-          <div class="year-stamp">
-            <span>PROHLÍŽÍTE ROK</span><strong id="year-display">2025</strong
-            ><span id="year-status">čeká na načtení</span>
-          </div>
-        </div>
-        <div id="active-summary" class="active-summary">
-          <span class="muted">Vyberte obec a načtěte roční data.</span>
-        </div>
-        <div class="view-tabs" role="tablist" aria-label="Pohled na data">
-          <button
-            class="view-tab active"
-            id="tab-overview"
-            data-view="overview"
-            role="tab"
-            aria-controls="view-overview"
-            aria-selected="true"
-          >
-            <svg><use href="#i-grid" /></svg>Přehled roku
-          </button>
-          <button
-            class="view-tab"
-            id="tab-compare"
-            data-view="compare"
-            role="tab"
-            aria-controls="view-compare"
-            aria-selected="false"
-            tabindex="-1"
-          >
-            <svg><use href="#i-chart" /></svg>Porovnání obcí
-          </button>
-          <button
-            class="view-tab"
-            id="tab-history"
-            data-view="history"
-            role="tab"
-            aria-controls="view-history"
-            aria-selected="false"
-            tabindex="-1"
-          >
-            <svg><use href="#i-clock" /></svg>Vývoj v čase
-          </button>
-          <button
-            class="button quiet share-button"
-            id="share-button"
-            title="Zkopírovat adresu s aktuálním výběrem"
-          >
-            Sdílet výběr ↗
-          </button>
-        </div>
-        <div id="empty-state" class="empty-state">
-          <div class="empty-illustration" aria-hidden="true">
+      <main id="main" class="main-content">
+        <div id="message" class="notice" role="status" hidden></div>
+        <section id="welcome" class="welcome">
+          <div class="welcome-grid" aria-hidden="true">
             <span></span><span></span><span></span><span></span><span></span>
           </div>
-          <h2>Každá obec má svůj příběh.</h2>
+          <span class="eyebrow">Otevřená data, srozumitelné souvislosti</span>
+          <h2>Od otázky k přehlednému grafu.</h2>
           <p>
-            Vyhledejte obec vlevo, přidejte další pro porovnání<br />a načtěte rok, který vás
-            zajímá.
+            Vyberte datovou sadu, upravte její dimenze a prozkoumejte výsledky v interaktivním grafu
+            i tabulce.
           </p>
-          <button id="start-button" class="button primary">
-            Vybrat obec <svg><use href="#i-arrow" /></svg>
-          </button>
-          <div class="empty-facts">
-            <span
-              ><b>2000–<span id="latest-label">2025</span></b
-              >roční data</span
-            ><span><b id="places-count">6 000+</b>českých obcí</span
-            ><span><b id="indicators-count">Stovky</b>ukazatelů</span>
+          <div class="welcome-actions">
+            <button class="welcome-card" id="start-csu">
+              <span class="card-icon">▥</span><strong>Datové sady ČSÚ</strong
+              ><span>Obyvatelstvo, ceny, školy, práce a další témata</span
+              ><b>Procházet katalog →</b></button
+            ><button class="welcome-card" id="start-territory">
+              <span class="card-icon">⌂</span><strong>Územní srovnání</strong
+              ><span>Obce, okresy a kraje podle dostupnosti dat</span
+              ><b>Vybrat územní data →</b></button
+            ><button class="welcome-card" id="start-import">
+              <span class="card-icon">↥</span><strong>Vlastní soubor</strong
+              ><span>CSV, JSON-stat a tabulkový JSON</span><b>Otevřít soubor →</b>
+            </button>
           </div>
-        </div>
-        <div id="data-content" class="hidden">
+          <p class="welcome-footnote">
+            Bez registrace · Bezplatné knihovny · Jeden samostatný HTML soubor
+          </p>
+        </section>
+        <section id="workspace" hidden>
+          <div class="workspace-heading">
+            <div>
+              <span class="eyebrow" id="result-source"></span>
+              <h2 id="result-title"></h2>
+              <p id="result-subtitle"></p>
+            </div>
+            <div class="result-actions">
+              <button class="button" id="share-button">Sdílet výběr</button
+              ><button class="button" id="information-button">Metodika</button>
+            </div>
+          </div>
+          <div class="summary-strip" id="summary-strip"></div>
+          <div class="analysis-controls">
+            <label
+              >Zobrazení hodnot<select id="chart-transform">
+                <option value="absolute">Původní hodnoty</option>
+                <option value="index">Index: společný základ = 100</option>
+                <option value="ratio">Poměrový přepočet</option>
+              </select></label
+            >
+            <label id="ratio-denominator-control" hidden
+              >Jmenovatel<select id="chart-denominator"></select
+            ></label>
+            <label id="ratio-scale-control" hidden
+              >Měřítko poměru<select id="chart-scale">
+                <option value="1000">Na 1 000 jednotek</option>
+                <option value="100">Na 100 jednotek</option>
+                <option value="1">Na 1 jednotku</option>
+              </select></label
+            >
+            <label>Srovnávat podle<select id="analysis-compare"></select></label>
+            <button class="button" id="analysis-chart-outliers">Odlehlé položky do grafu</button>
+            <p id="analysis-note" class="muted"></p>
+          </div>
+          <div class="view-tabs" role="tablist" aria-label="Zobrazení výsledků">
+            <button role="tab" id="tab-chart" aria-controls="chart-panel" aria-selected="true">
+              Graf</button
+            ><button role="tab" id="tab-table" aria-controls="table-panel" aria-selected="false">
+              Tabulka</button
+            ><span id="result-stale" class="muted"></span>
+            <div class="header-spacer"></div>
+            <button class="text-button" id="export-image">Uložit obrázek ↧</button
+            ><button class="text-button" id="export-csv">CSV ↧</button>
+          </div>
           <section
-            id="view-overview"
-            class="view-panel"
+            id="chart-panel"
             role="tabpanel"
-            aria-labelledby="tab-overview"
+            aria-labelledby="tab-chart"
+            class="visual-panel"
           >
-            <div id="stat-cards" class="stat-cards"></div>
-            <section class="panel table-panel">
-              <div class="panel-heading">
-                <div>
-                  <div class="eyebrow">VŠECHNY SOUVISLOSTI NA JEDNOM MÍSTĚ</div>
-                  <h2>Data za vybraný rok</h2>
-                </div>
-                <button class="button" id="export-overview">
-                  <svg><use href="#i-download" /></svg>CSV
-                </button>
-              </div>
-              <div class="table-filters">
-                <label class="search-field"
-                  ><svg><use href="#i-search" /></svg
-                  ><input
-                    id="indicator-search"
-                    type="search"
-                    placeholder="Hledat název, kód nebo okruh…"
-                    aria-label="Hledat v ukazatelích" /></label
-                ><label class="sr-only" for="topic-filter">Tematický okruh</label
-                ><select id="topic-filter">
-                  <option value="">Všechny tematické okruhy</option></select
-                ><label class="checkbox-label"
-                  ><input type="checkbox" id="available-only" checked />Jen číselné údaje</label
-                >
-              </div>
-              <p class="table-hint tiny muted">
-                <span
-                  ><svg class="icon"><use href="#i-info" /></svg>Vyberte řádek pro graf a
-                  metodiku.</span
-                ><span>Řazení kliknutím na záhlaví · další obce posunutím tabulky →</span>
-              </p>
-              <div id="overview-table" aria-label="Statistické ukazatele vybraných obcí"></div>
-              <div class="table-footer">
-                <span id="row-count"></span
-                ><span>— údaj není k dispozici · i.d. chráněný údaj</span>
-              </div>
-            </section>
+            <div class="chart-controls">
+              <label
+                >Typ grafu<select id="chart-type">
+                  <option value="line">Spojnicový</option>
+                  <option value="bar">Sloupcový</option>
+                  <option value="horizontal">Pruhový</option>
+                  <option value="area">Plošný</option>
+                  <option value="stacked">Skládaný sloupcový</option>
+                  <option value="heatmap">Tepelná mapa</option>
+                </select></label
+              ><label>Osa kategorií<select id="chart-x"></select></label
+              ><label>Datové řady<select id="chart-series"></select></label
+              ><label>Ukazatel<select id="chart-metric"></select></label
+              ><button
+                class="icon-button"
+                id="chart-settings-toggle"
+                aria-label="Další nastavení grafu"
+                aria-expanded="false"
+                aria-controls="chart-settings"
+              >
+                ⚙</button
+              ><button class="icon-button" id="fullscreen-chart" aria-label="Zvětšit graf">
+                ⛶
+              </button>
+            </div>
+            <div id="chart-settings" class="chart-settings" hidden>
+              <label
+                >Řazení kategorií<select id="chart-sort">
+                  <option value="source">Podle zdroje</option>
+                  <option value="desc">Od nejvyšší hodnoty</option>
+                  <option value="asc">Od nejnižší hodnoty</option>
+                </select></label
+              ><label
+                >Počet řad<select id="chart-limit">
+                  <option value="10">10</option>
+                  <option value="20" selected>20</option>
+                  <option value="50">50</option>
+                  <option value="0">Všechny</option>
+                </select></label
+              ><label
+                >Automatický výběr řad<select id="chart-series-order">
+                  <option value="source">Podle zdroje</option>
+                  <option value="desc">Nejvyšší poslední hodnota</option>
+                  <option value="asc">Nejnižší poslední hodnota</option>
+                  <option value="outlier">Největší odchylka od ostatních</option>
+                </select></label
+              ><label
+                >Legenda<select id="chart-legend">
+                  <option value="bottom">Dole</option>
+                  <option value="right">Vpravo</option>
+                </select></label
+              ><label class="checkbox-label"
+                ><input type="checkbox" id="chart-labels" /> Hodnoty v grafu</label
+              ><label class="checkbox-label"
+                ><input type="checkbox" id="chart-extremes" /> Minimum a maximum</label
+              ><button class="text-button" id="reset-zoom">Obnovit přiblížení</button>
+            </div>
+            <div class="chart-selection-bar">
+              <button class="button" id="choose-chart-items">Vybrat řady a položky grafu</button>
+              <span id="chart-selection-status" class="muted"></span>
+              <button class="text-button" id="reset-chart-items" hidden>
+                Obnovit automatický výběr
+              </button>
+            </div>
+            <div id="chart-fixed" class="chart-fixed"></div>
+            <p id="chart-warning" class="chart-warning" hidden></p>
+            <div
+              id="chart"
+              class="chart"
+              role="img"
+              aria-label="Interaktivní graf vybraných dat"
+            ></div>
+            <div id="chart-empty" class="empty-state" hidden></div>
+            <div class="chart-footnote">
+              <span id="chart-caption"></span
+              ><span>Přiblížení: Ctrl + kolečko · Řady přepnete v legendě</span>
+            </div>
           </section>
-          <section
-            id="view-compare"
-            class="view-panel hidden"
-            role="tabpanel"
-            aria-labelledby="tab-compare"
-          >
-            <section class="panel">
-              <div class="panel-heading">
-                <div>
-                  <div class="eyebrow">VEDLE SEBE JE TO JASNĚJŠÍ</div>
-                  <h2>Porovnání obcí</h2>
-                </div>
-                <button class="button" id="export-compare">
-                  <svg><use href="#i-download" /></svg>CSV
-                </button>
-              </div>
-              <div class="indicator-tools">
-                <label class="search-field"
-                  ><svg><use href="#i-search" /></svg
-                  ><input
-                    type="search"
-                    id="compare-indicator-search"
-                    aria-label="Filtrovat ukazatele pro porovnání"
-                    placeholder="Najít ukazatel podle názvu nebo kódu…" /></label
-                ><label class="checkbox-label"
-                  ><input type="checkbox" id="compare-show-empty" />Včetně ukazatelů bez
-                  čísel</label
-                >
-              </div>
-              <p class="availability-summary" id="compare-availability" aria-live="polite"></p>
-              <div class="chart-controls">
-                <label class="indicator-field"
-                  >Ukazatel<select
-                    id="compare-indicator"
-                    aria-label="Ukazatel pro porovnání"
-                  ></select></label
-                ><label
-                  >Přepočet<select id="compare-normalize">
-                    <option value="absolute">Původní hodnota</option>
-                    <option value="per1000">Na 1 000 obyvatel</option>
-                  </select></label
-                >
-              </div>
-              <div class="chart-title-row">
-                <div>
-                  <h3 id="compare-title"></h3>
-                  <p class="muted small" id="compare-subtitle"></p>
-                </div>
-                <button
-                  class="icon-button"
-                  id="download-compare"
-                  title="Stáhnout graf jako PNG"
-                  aria-label="Stáhnout porovnávací graf jako PNG"
-                >
-                  <svg><use href="#i-download" /></svg>
-                </button>
-              </div>
-              <div
-                id="compare-chart"
-                class="chart"
-                role="img"
-                aria-label="Graf porovnání obcí"
-              ></div>
-              <p id="compare-warning" class="chart-warning hidden"></p>
-              <div id="compare-table"></div>
-            </section>
-            <div id="compare-method" class="method-panel"></div>
+          <section id="table-panel" role="tabpanel" aria-labelledby="tab-table" hidden>
+            <div class="table-analysis-controls">
+              <label>Souhrn tabulky<select id="table-summary"></select></label>
+              <label>Ukazatel v tabulce<select id="table-metric-filter"></select></label>
+              <label class="checkbox-label"
+                ><input type="checkbox" id="table-outliers" /> Jen odlehlé hodnoty</label
+              >
+            </div>
+            <p id="table-analysis-note" class="table-note"></p>
+            <div class="table-controls">
+              <label class="search-field"
+                ><span aria-hidden="true">⌕</span
+                ><input
+                  type="search"
+                  id="table-search"
+                  placeholder="Hledat v načtených datech…"
+                  aria-label="Hledat v tabulce" /></label
+              ><label class="checkbox-label"
+                ><input type="checkbox" id="table-missing" /> Zobrazit i chybějící údaje</label
+              ><span id="table-count" class="muted"></span>
+            </div>
+            <div id="data-table"></div>
+            <p class="table-note">
+              Tabulka obsahuje celý načtený výběr. Graf může zobrazovat užší výřez. Kódy jsou
+              zachované v CSV. Přepočtená hodnota je vedle původní hodnoty.
+            </p>
           </section>
-          <section
-            id="view-history"
-            class="view-panel hidden"
-            role="tabpanel"
-            aria-labelledby="tab-history"
-          >
-            <section class="panel">
-              <div class="panel-heading">
-                <div>
-                  <div class="eyebrow">ZMĚNY, KTERÉ STOJÍ ZA POZORNOST</div>
-                  <h2>Vývoj v čase</h2>
-                </div>
-                <button class="button" id="export-history">
-                  <svg><use href="#i-download" /></svg>CSV
-                </button>
-              </div>
-              <div class="indicator-tools">
-                <label class="search-field"
-                  ><svg><use href="#i-search" /></svg
-                  ><input
-                    type="search"
-                    id="history-indicator-search"
-                    aria-label="Filtrovat ukazatele časové řady"
-                    placeholder="Najít ukazatel podle názvu nebo kódu…" /></label
-                ><label class="checkbox-label"
-                  ><input type="checkbox" id="history-show-empty" />Včetně ukazatelů bez
-                  čísel</label
-                >
-              </div>
-              <p class="availability-summary" id="history-availability" aria-live="polite"></p>
-              <div class="chart-controls">
-                <label class="indicator-field"
-                  >Ukazatel<select
-                    id="history-indicator"
-                    aria-label="Ukazatel pro časovou řadu"
-                  ></select></label
-                ><label>Od roku<select id="history-from"></select></label
-                ><label>Do roku<select id="history-to"></select></label
-                ><button id="load-history" class="button primary">
-                  Načíst období <svg><use href="#i-arrow" /></svg>
-                </button>
-              </div>
-              <p class="tiny muted" id="history-load-hint">
-                Každý rok je samostatný soubor. Již stažené roky se použijí z místní paměti.
-              </p>
-              <div class="chart-controls secondary-controls">
-                <label
-                  >Zobrazení<select id="history-mode">
-                    <option value="absolute">Původní hodnoty</option>
-                    <option value="per1000">Na 1 000 obyvatel</option>
-                    <option value="index">Index · první společný nenulový rok = 100</option>
-                  </select></label
-                ><label id="history-series-control" class="hidden"
-                  >Obce v grafu<select id="history-series-limit">
-                    <option value="10">Prvních 10 vybraných obcí</option>
-                    <option value="20">Prvních 20 vybraných obcí</option>
-                    <option value="50">Prvních 50 vybraných obcí</option>
-                    <option value="all">Všechny vybrané obce</option>
-                  </select></label
-                >
-              </div>
-              <p class="tiny muted hidden" id="history-series-hint"></p>
-              <div class="chart-title-row">
-                <div>
-                  <h3 id="history-title"></h3>
-                  <p class="muted small" id="history-subtitle"></p>
-                </div>
-                <button
-                  class="icon-button"
-                  id="download-history"
-                  title="Stáhnout graf jako PNG"
-                  aria-label="Stáhnout časový graf jako PNG"
-                >
-                  <svg><use href="#i-download" /></svg>
-                </button>
-              </div>
-              <div
-                id="history-chart"
-                class="chart"
-                role="img"
-                aria-label="Graf vývoje v čase"
-              ></div>
-              <p id="history-warning" class="chart-warning hidden"></p>
-              <div id="history-table"></div>
-            </section>
-            <div id="history-method" class="method-panel"></div>
-          </section>
-        </div>
-        <footer class="main-footer">
-          <span>Zdroj: Český statistický úřad · databáze MOS</span
-          ><button id="storage-mobile" class="text-button mobile-storage">
-            Spravovat stažené roky</button
-          ><button id="refresh-year" class="text-button" disabled>
-            <svg><use href="#i-refresh" /></svg>Znovu stáhnout vybraný rok
-          </button>
-        </footer>
+        </section>
       </main>
     </div>
-    <dialog id="loading-dialog" class="loading-dialog" aria-labelledby="loading-title">
-      <div class="dialog-body">
-        <div class="loading-icon">
-          <svg><use href="#i-download" /></svg>
+    <footer class="app-footer">
+      <span>Nezávislá aplikace · ČSÚ DataStat a MOS</span
+      ><span>Vlastní kód MIT · ECharts Apache-2.0 · Tabulator a Papa Parse MIT</span
+      ><a href="https://github.com/martinrotter/csustats" target="_blank" rel="noopener noreferrer"
+        >Zdrojový kód ↗</a
+      >
+    </footer>
+
+    <dialog id="dataset-dialog" class="dialog catalog-dialog">
+      <div class="dialog-heading">
+        <div>
+          <span class="eyebrow">Katalog</span>
+          <h2>Vyberte datovou sadu</h2>
         </div>
-        <div class="eyebrow">PŘIPRAVUJEME VAŠE DATA</div>
-        <h2 id="loading-title">Načítám data ČSÚ</h2>
-        <p id="loading-detail" class="muted" aria-live="polite"></p>
-        <div class="progress-heading">
-          <span id="loading-stage">Připojuji se…</span><b id="loading-percent"></b>
-        </div>
-        <progress
-          id="loading-progress"
-          class="sr-only"
-          max="100"
-          aria-label="Průběh aktuálního souboru"
-        ></progress>
-        <div id="progress-track" class="progress-track indeterminate" aria-hidden="true">
-          <span id="progress-fill"></span>
-        </div>
-        <div class="progress-meta">
-          <span id="loading-bytes"></span><span id="loading-task"></span>
-        </div>
-        <section
-          id="transfer-section"
-          class="transfer-section hidden"
-          aria-label="Průběh jednotlivých souborů"
+        <button class="icon-button" data-close aria-label="Zavřít">×</button>
+      </div>
+      <div class="catalog-filters">
+        <input
+          id="dataset-search"
+          type="search"
+          placeholder="Název, téma nebo kód sady…"
+          aria-label="Hledat datovou sadu"
+        /><select id="catalog-source" aria-label="Zdroj">
+          <option value="all">Všechny zdroje</option>
+          <option value="datastat">ČSÚ DataStat</option>
+          <option value="csv">Souborové sady</option></select
+        ><label class="checkbox-label"
+          ><input type="checkbox" id="catalog-municipal" /> Data za obce</label
         >
-          <div class="transfer-heading">
-            <span>SOUBORY VE VÝBĚRU</span><b id="transfer-summary"></b>
-          </div>
-          <div id="transfer-list" class="transfer-list"></div>
-          <div class="overall-heading"><span>Celkový průběh</span><b id="overall-percent"></b></div>
-          <div
-            class="overall-track"
-            role="progressbar"
-            id="overall-progress"
-            aria-label="Celkový průběh vybraných souborů"
-            aria-valuemin="0"
-            aria-valuemax="100"
-            aria-valuenow="0"
-          >
-            <span id="overall-fill"></span>
-          </div>
-        </section>
-        <p id="loading-help" class="tiny muted">
-          Již stažené soubory se použijí z prohlížeče. Nové se stahují přímo z ČSÚ.
-        </p>
-        <button id="cancel-loading" class="button full">Zrušit načítání</button>
+      </div>
+      <div class="catalog-summary">
+        <span id="catalog-count"></span
+        ><button class="text-button" id="refresh-catalog">Obnovit katalog</button
+        ><button class="text-button" id="import-button">Otevřít vlastní soubor</button>
+      </div>
+      <div id="dataset-list" class="dataset-list"></div>
+      <button id="catalog-more" class="button wide" hidden>Další sady</button>
+    </dialog>
+    <dialog id="dimension-dialog" class="dialog dimension-dialog">
+      <div class="dialog-heading">
+        <div>
+          <span class="eyebrow">Dimenze</span>
+          <h2 id="dimension-dialog-title"></h2>
+        </div>
+        <button class="icon-button" data-close aria-label="Zavřít">×</button>
+      </div>
+      <p id="dimension-hint" class="muted"></p>
+      <div class="dimension-search">
+        <input
+          type="search"
+          id="dimension-search"
+          placeholder="Název nebo kód…"
+          aria-label="Hledat položku dimenze"
+        /><select id="dimension-level" aria-label="Úroveň členění" hidden></select
+        ><select id="dimension-group" aria-label="Skupina podle hierarchie" hidden></select>
+      </div>
+      <div class="selection-toolbar">
+        <button class="text-button" id="dimension-all">Vybrat všechny zobrazené</button
+        ><button class="text-button" id="dimension-none">Vyprázdnit výběr</button
+        ><label class="checkbox-label"
+          ><input type="checkbox" id="dimension-selected-only" /> Jen vybrané</label
+        ><label class="checkbox-label" id="empty-metrics-label" hidden
+          ><input type="checkbox" id="show-empty-metrics" /> I bez číselných údajů</label
+        >
+      </div>
+      <div id="dimension-list" class="dimension-list"></div>
+      <button id="dimension-more" class="text-button" hidden>Zobrazit další položky</button>
+      <div class="dialog-footer">
+        <span id="dimension-selection-count"></span
+        ><button class="button primary" id="dimension-apply">Použít výběr</button>
       </div>
     </dialog>
-    <dialog id="about-dialog" aria-labelledby="about-title">
-      <div class="dialog-body">
-        <div class="dialog-heading">
-          <h2 id="about-title">O aplikaci CsuStats</h2>
-          <button class="close-dialog icon-button" aria-label="Zavřít">×</button>
+    <dialog id="chart-items-dialog" class="dialog">
+      <div class="dialog-heading">
+        <div>
+          <span class="eyebrow">Graf</span>
+          <h2 id="chart-items-title">Vybrat řady a položky grafu</h2>
         </div>
-        <p>
-          Jednoduchý průzkumník městské a obecní statistiky ČSÚ. Data se stahují přímo z
-          <b>opendata.csu.gov.cz</b> a zpracovávají ve vašem prohlížeči.
-        </p>
-        <p>
-          Pro spuštění stačí otevřít tento soubor HTML. K prvnímu načtení dat je potřeba internet.
-          Již uložené roky lze procházet i bez připojení, pokud prohlížeč umožňuje místní úložiště.
-        </p>
-        <p>
-          <b>Jak číst data:</b> pomlčka znamená nedostupný údaj, „i.d.“ chráněný údaj. Nula je
-          skutečná nula. Dostupnost i metodika se mezi roky mohou lišit; údaje se vztahují k území
-          obce platnému v příslušném roce.
-        </p>
-        <p>
-          Přepočet na 1 000 obyvatel používá počet obyvatel k 31. 12. stejného roku. Je dostupný
-          pouze pro vhodné početní a peněžní ukazatele. Index používá první rok, ve kterém mají
-          všechny vybrané obce dostupnou nenulovou hodnotu.
-        </p>
-        <p>
-          Výběr obcí a nastavení lze sdílet adresou stránky. U souboru otevřeného z disku příjemce
-          potřebuje vlastní kopii HTML.
-        </p>
-        <p>
-          <a
-            href="https://csu.gov.cz/produkty/databaze-mos-otevrena-data"
-            target="_blank"
-            rel="noopener noreferrer"
-            >Zdrojová data ↗</a
-          >
-          ·
-          <a
-            href="https://csu.gov.cz/statistika/databaze-mos-otevrena-data-dokumentace"
-            target="_blank"
-            rel="noopener noreferrer"
-            >Dokumentace a metodika ↗</a
-          >
-        </p>
-        <p class="tiny muted">
-          Neoficiální aplikace. Knihovny: Apache ECharts 6.0.0 (Apache-2.0), Tabulator 6.3.1 a Papa
-          Parse 5.5.3 (MIT). Licenční texty jsou přiloženy ve zdroji HTML. Bez analytiky a bez
-          aplikačního serveru.
-        </p>
+        <button class="icon-button" data-close aria-label="Zavřít">×</button>
+      </div>
+      <p class="muted">
+        Výběr grafu nemění načtená data ani řádky v tabulce. Ručně lze vybrat až 200 položek.
+      </p>
+      <input
+        id="chart-items-search"
+        type="search"
+        placeholder="Název nebo kód…"
+        aria-label="Hledat položky grafu"
+      />
+      <div class="selection-toolbar">
+        <button class="text-button" id="chart-items-all">Vybrat nalezené</button
+        ><button class="text-button" id="chart-items-none">Zrušit výběr</button
+        ><label class="checkbox-label"
+          ><input id="chart-items-selected" type="checkbox" /> Jen vybrané</label
+        >
+      </div>
+      <div id="chart-items-list" class="dimension-list chart-items-list"></div>
+      <div class="dialog-footer">
+        <span id="chart-items-count" aria-live="polite"></span
+        ><button class="button primary" id="chart-items-apply">Použít výběr</button>
       </div>
     </dialog>
-    <dialog id="storage-dialog" class="years-dialog" aria-labelledby="storage-title">
-      <div class="dialog-body">
-        <div class="dialog-heading">
-          <div>
-            <div class="eyebrow">VAŠE DATA, VAŠE OBDOBÍ</div>
-            <h2 id="storage-title">Které roky vás zajímají?</h2>
-          </div>
-          <button class="close-dialog icon-button" aria-label="Zavřít výběr roků">×</button>
+    <dialog id="progress-dialog" class="dialog progress-dialog">
+      <div class="dialog-heading">
+        <div>
+          <span class="eyebrow">Načítání</span>
+          <h2 id="progress-title">Připravuji data</h2>
         </div>
-        <p class="small muted">
-          Vyberte roky pro prohlížení.
-          <b class="saved-text">Uložené soubory se znovu nestahují.</b> Výběr můžete kdykoliv
-          změnit.
-        </p>
-        <div class="year-presets" role="group" aria-label="Rychlý výběr roků">
-          <button data-years-preset="recent" class="button">Posledních 5 let</button
-          ><button data-years-preset="saved" class="button">Stažené roky</button
-          ><button data-years-preset="all" class="button">Všechny</button
-          ><button data-years-preset="none" class="text-button">Zrušit výběr</button>
-        </div>
-        <div id="storage-list" class="year-options" role="group" aria-label="Roky ke stažení"></div>
-        <div class="years-selection-summary" aria-live="polite">
-          <b id="years-selection-count"></b><span id="years-selection-detail"></span>
-        </div>
-        <p id="storage-total" class="tiny muted"></p>
-        <div class="years-actions">
-          <button id="skip-years" class="button">Teď přeskočit</button
-          ><button id="download-years" class="button primary">
-            <svg><use href="#i-download" /></svg
-            ><span id="download-years-label">Připravit vybrané roky</span>
-          </button>
-        </div>
-        <details class="storage-management">
-          <summary>Správa uložených dat</summary>
-          <p class="tiny muted">
-            Jednotlivý rok odstraníte křížkem na jeho kartě. Data lze kdykoliv znovu stáhnout.
-          </p>
-          <button id="clear-cache" class="text-button">Odstranit všechny stažené roky</button>
-        </details>
+        <button class="icon-button" id="cancel-loading" aria-label="Zrušit načítání">×</button>
+      </div>
+      <p id="progress-detail" role="status" aria-live="polite"></p>
+      <progress id="progress-bar" max="100"></progress>
+      <div class="progress-meta">
+        <span id="progress-bytes"></span><span id="progress-percent"></span>
+      </div>
+      <div id="progress-files" class="progress-files"></div>
+      <p class="muted">Požadavky řadíme do šetrné fronty. Již uložené soubory zůstávají v cache.</p>
+    </dialog>
+    <dialog id="cache-dialog" class="dialog">
+      <div class="dialog-heading">
+        <h2>Místní data</h2>
+        <button class="icon-button" data-close aria-label="Zavřít">×</button>
+      </div>
+      <p class="muted">Data jsou uložená v tomto prohlížeči. Smazané soubory lze znovu načíst.</p>
+      <div id="cache-list" class="cache-list"></div>
+      <div class="dialog-footer">
+        <span id="cache-total"></span
+        ><button class="button" id="clear-cache">Odstranit všechna uložená data</button>
       </div>
     </dialog>
-    <dialog id="bulk-dialog" class="bulk-dialog" aria-labelledby="bulk-title">
-      <div class="dialog-body">
-        <div class="dialog-heading">
-          <div>
-            <div class="eyebrow">VÍCE OBCÍ JEDNÍM KLIKNUTÍM</div>
-            <h2 id="bulk-title">Přidat okresy nebo kraje</h2>
-          </div>
-          <button class="close-dialog icon-button" aria-label="Zavřít hromadný výběr">×</button>
-        </div>
-        <p id="bulk-year-hint" class="small muted"></p>
-        <div class="bulk-mode" role="group" aria-label="Typ územního celku">
-          <label><input type="radio" name="bulk-scope" value="district" checked />Okresy</label
-          ><label><input type="radio" name="bulk-scope" value="region" />Kraje</label>
-        </div>
-        <label class="search-field"
-          ><svg><use href="#i-search" /></svg
-          ><input
-            id="bulk-search"
-            type="search"
-            aria-label="Hledat okres nebo kraj"
-            placeholder="Hledat územní celek…"
+    <dialog id="network-dialog" class="dialog network-dialog">
+      <div class="dialog-heading">
+        <h2>Požadavky a ochrana API</h2>
+        <button class="icon-button" data-close aria-label="Zavřít">×</button>
+      </div>
+      <p>
+        Nejvýše jeden souběžný požadavek, odstup alespoň 1,2 s a nejvýše 30 požadavků za minutu.
+        Server může vyžadovat delší přestávku.
+      </p>
+      <p id="quota-status" class="notice"></p>
+      <p class="muted">
+        429 a Retry-After pozastaví frontu. Chyby 403 přístup dočasně zastaví; vybrané dočasné chyby
+        opakujeme nejvýše dvakrát. Sdílení limitu mezi kartami využívá Web Locks a místní úložiště,
+        pokud je prohlížeč zpřístupní. Viditelnost hlaviček řídí CORS poskytovatele.
+      </p>
+      <div id="network-log" class="network-log"></div>
+    </dialog>
+    <dialog id="info-dialog" class="dialog">
+      <div class="dialog-heading">
+        <h2 id="info-title">O aplikaci</h2>
+        <button class="icon-button" data-close aria-label="Zavřít">×</button>
+      </div>
+      <div id="info-content" class="info-content"></div>
+    </dialog>
+    <dialog id="image-dialog" class="dialog small-dialog">
+      <div class="dialog-heading">
+        <h2>Uložit graf jako obrázek</h2>
+        <button class="icon-button" data-close aria-label="Zavřít">×</button>
+      </div>
+      <p class="muted">Název, výřez, jednotka a zdroj budou součástí obrázku.</p>
+      <label
+        >Formát<select id="image-format">
+          <option value="png">PNG · rastrový obrázek</option>
+          <option value="svg">SVG · vektorový obrázek</option>
+        </select></label
+      ><label
+        >Velikost<select id="image-size">
+          <option value="1600x1000">1 600 × 1 000 px</option>
+          <option value="2400x1500">2 400 × 1 500 px</option>
+          <option value="3200x2000">3 200 × 2 000 px</option>
+        </select></label
+      ><button class="button primary wide" id="save-image">Stáhnout obrázek</button>
+    </dialog>
+    <dialog id="import-dialog" class="dialog">
+      <div class="dialog-heading">
+        <h2>Otevřít vlastní soubor</h2>
+        <button class="icon-button" data-close aria-label="Zavřít">×</button>
+      </div>
+      <p class="muted">
+        Soubor se zpracuje pouze zde. Podporujeme CSV, JSON-stat a ploché JSON záznamy do 20 MB.
+      </p>
+      <div class="import-file-control">
+        <button class="button" id="choose-import-file">Vybrat soubor…</button>
+        <span id="import-filename" class="muted">Není vybrán soubor</span>
+        <input
+          hidden
+          type="file"
+          id="import-file"
+          aria-label="Soubor"
+          accept=".csv,.tsv,.json,.jsonstat,text/csv,application/json"
+        />
+      </div>
+      <label
+        >Kódování CSV<select id="import-encoding">
+          <option value="utf-8">UTF-8</option>
+          <option value="windows-1250">Windows-1250</option>
+        </select></label
+      >
+      <div id="import-mapping" hidden>
+        <div id="import-preview" class="import-preview"></div>
+        <label>Číselná hodnota<select id="import-value"></select></label
+        ><label>Kategorie / území<select id="import-category"></select></label
+        ><label>Časová dimenze<select id="import-time"></select></label
+        ><label
+          >Jednotka<input id="import-unit" type="text" placeholder="např. osoba nebo Kč"
         /></label>
-        <div class="bulk-presets">
-          <button id="bulk-select-visible" class="text-button">Označit zobrazené</button
-          ><button id="bulk-clear" class="text-button">Zrušit výběr celků</button>
-        </div>
-        <div id="bulk-options" class="bulk-options" role="group" aria-label="Územní celky"></div>
-        <div class="bulk-footer">
-          <label
-            >Způsob přidání<select id="bulk-action">
-              <option value="append">Přidat ke stávajícím obcím</option>
-              <option value="replace">Nahradit celý výběr</option>
-            </select></label
-          >
-          <p id="bulk-summary" class="small" aria-live="polite"></p>
-          <button id="bulk-apply" class="button primary full" disabled>Přidat vybrané obce</button>
-        </div>
+        <p class="muted">
+          Každá kombinace kategorií musí být jednoznačná. Duplicitní řádky automaticky nesčítáme.
+        </p>
+        <button class="button primary wide" id="import-apply">Otevřít tabulku a graf</button>
       </div>
     </dialog>
-    <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
+    <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
     <noscript
-      ><div class="notice">
-        Pro zobrazení a zpracování dat je potřeba povolit JavaScript.
-      </div></noscript
+      ><p class="notice">Pro čtení a zpracování dat je potřeba povolit JavaScript.</p></noscript
     >
-    <!-- Všechny knihovny jsou vložené přímo v tomto souboru. -->
     <script id="parser-lib">
       <!-- PAPA -->
     </script>

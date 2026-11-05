@@ -1,3 +1,4 @@
-import { createApp } from './app/create-app.js';
+import { Workbench } from './app/workbench.js';
 
-createApp().start();
+const application = new Workbench();
+application.start().catch((error) => application.message(error.message, true));

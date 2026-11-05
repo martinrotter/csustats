@@ -1,0 +1,78 @@
+[
+  {
+    "id": "mos",
+    "type": "partitioned-csv",
+    "dataLanguage": "cs",
+    "title": "Městská a obecní statistika (MOS)",
+    "provider": "Český statistický úřad",
+    "source": "ČSÚ · otevřené CSV",
+    "code": "MOS",
+    "url": "https://csu.gov.cz/produkty/databaze-mos-otevrena-data",
+    "description": "Statistiky jednotlivých obcí od roku 2000. Soubory jsou publikované po rocích pro celé území; uložené soubory znovu nestahujeme.",
+    "catalogCacheKey": "catalog",
+    "catalogs": {
+      "territories": {
+        "url": "https://opendata.csu.gov.cz/soubory/od/od_mos01/mos_uzemi.csv",
+        "required": ["koduzemi", "obec", "okres", "platiod", "platido"]
+      },
+      "indicators": {
+        "url": "https://opendata.csu.gov.cz/soubory/od/od_mos01/mos_ukaz.csv",
+        "required": ["kodukaz", "nazev", "mj", "metodika"]
+      },
+      "topics": {
+        "url": "https://opendata.csu.gov.cz/soubory/od/od_mos01/mos_okruhy.csv",
+        "required": ["kod", "nazev"]
+      }
+    },
+    "metric": {
+      "id": "IndicatorType",
+      "label": "Ukazatel",
+      "catalog": "indicators",
+      "code": "kodukaz",
+      "name": "nazev",
+      "unit": "mj",
+      "note": "metodika",
+      "topic": "okruh",
+      "default": "110900",
+      "categorical": ["010000"]
+    },
+    "entity": {
+      "id": "obec",
+      "label": "Obce",
+      "role": "geo",
+      "level": { "id": "OBEC", "label": "Obec" },
+      "catalog": "territories",
+      "code": "koduzemi",
+      "name": "obec",
+      "validFrom": "platiod",
+      "validTo": "platido",
+      "groups": [
+        { "field": "okres", "label": "Okres" },
+        { "field": "okres", "lookup": "districts", "label": "Kraj" }
+      ]
+    },
+    "time": {
+      "id": "rok",
+      "label": "Roky",
+      "start": 2000,
+      "minimumEnd": 2025,
+      "end": "previous-year"
+    },
+    "file": {
+      "url": "https://opendata.csu.gov.cz/soubory/od/od_mos01/mos_data_{period}.csv",
+      "cacheKey": "year-{period}",
+      "fields": { "time": "rok", "metric": "kodukaz", "entity": "koduzemi", "value": "hodnota" }
+    },
+    "referenceMetrics": ["110900"],
+    "initialPickerRole": "time",
+    "legacyLink": {
+      "trigger": "places",
+      "dimensions": {
+        "IndicatorType": { "param": "indicator", "default": "110900" },
+        "obec": { "param": "places", "separator": "," },
+        "rok": { "param": "year", "default": "2025" }
+      }
+    },
+    "notes": ["Území a metodika se mohou v čase měnit. Chybějící údaj není nula."]
+  }
+]

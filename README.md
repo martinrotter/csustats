@@ -1,83 +1,94 @@
-# CsuStats
+# Národní data
 
-Přehledný průzkumník českých obcí nad otevřenými daty ČSÚ MOS. Porovnání obcí,
-roční přehledy a časové řady fungují přímo v prohlížeči.
+Nezávislý průzkumník národních otevřených dat. Procházejte datové sady ČSÚ,
+vybírejte ukazatele a dimenze, porovnávejte výsledky v grafech a tabulkách.
+Veškeré zpracování probíhá ve vašem prohlížeči.
 
-[Web](https://martinrotter.github.io/csustats/) ·
-[Návod](documentation/usage.md) ·
-[Vývoj](documentation/development.md) ·
-[Zdroje dat](documentation/data.md)
+[Web](https://martinrotter.github.io/csustats/) · [Návod](documentation/usage.md) ·
+[Vývoj](documentation/development.md) · [Zdroje a interpretace](documentation/data.md)
 
-![Přehled obcí](documentation/images/overview.jpg)
+![Porovnání obcí v aplikaci Národní data](documentation/images/overview.jpg)
 
-## Co aplikace umí
+## Zdroje a možnosti
 
-- Vybrat a uložit roční soubory od roku 2000; již stažené roky se nepřenášejí znovu.
-- Porovnávat jednotlivé obce i celé okresy a kraje bez duplicit.
-- Procházet tabulky, interaktivní grafy a časové řady.
-- Rozlišit chybějící, chráněné a číselné údaje včetně skutečných nul.
-- Zobrazit pokrytí dat a označit ukazatele s malým počtem hodnot.
-- Exportovat CSV a PNG a sdílet výběr adresou stránky.
+- **ČSÚ DataStat:** katalog sad, automaticky sestavené filtry podle metadat,
+  varianty územního členění a vlastní datové výběry přes veřejné API.
+- **ČSÚ MOS:** obecní statistiky od roku 2000; výběr více obcí, okresů a krajů,
+  více let a ukazatelů. Existující roční cache původního CsuStats zůstává použitelná.
+- **Vlastní soubory:** CSV/TSV, JSON-stat 1.x/2.0 a ploché JSON záznamy.
+  Tabulkové soubory mají průvodce přiřazením sloupců; nikam se neodesílají.
+- **Grafy:** spojnicové, sloupcové, pruhové, plošné, skládané a tepelné mapy;
+  volba osy a řad, výřez dalších dimenzí, legenda, zoom a indexování.
+- **Export:** PNG ve vysokém rozlišení, vektorové SVG a CSV s kódy, jednotkami,
+  stavy údajů a zdrojem. Obrázky obsahují název, výřez i zdroj.
+- **Responzivní rozhraní:** kompaktní ovládání pro PC, tablet a telefon.
+- **Srovnání a souhrny:** přepočtená hodnota vedle původní v tabulce i CSV,
+  součty přes zvolenou dimenzi s pokrytím, detekce odlehlých hodnot a jejich výběr
+  do grafu. Ruční výběr řad funguje nad celým načteným výběrem.
+- **Čeština a angličtina:** přepínač celého UI, grafů a exportů; DataStat vrací
+  metadata ve zvoleném jazyce přes `Accept-Language`. Jazyk se ukládá a sdílí v odkazu.
+  Vlastní soubory a CSV zdroje zachovávají původní názvy dat.
+- **Ochrana API:** společná fronta, cache, omezení frekvence, sledování HTTP
+  odpovědí, respektování `Retry-After`, omezená opakování a rušení požadavků.
 
-Aplikace nemá backend ani runtime závislosti na CDN. Číselníky a CSV stahuje přímo
-z ČSÚ; místní cache je uložená v IndexedDB každého návštěvníka. Výsledkem buildu je
-jediný soubor `docs/index.html`, který lze také otevřít přímo z disku.
+Projekt vznikl jako CsuStats pro MOS. Název repozitáře a adresa webu zůstávají
+zachované. Nejde o oficiální aplikaci ČSÚ. Přímé procházení celého katalogu
+data.gov.cz není součástí této verze; aplikace je připravená pro další zdrojové moduly.
 
-## Stačí commit a push
+## Samostatný HTML soubor
 
-Každý push do `master` spustí [GitHub Actions](.github/workflows/ci.yml):
+Výsledkem buildu je **jediný `docs/index.html`**. Obsahuje JavaScript, styly,
+knihovny, pracovní vlákno i licenční texty. Nepotřebuje aplikační server, registraci
+ani CDN. Lze ho hostovat na GitHub Pages nebo otevřít z disku. Síťové zdroje
+vyžadují internet a dostupné CORS rozhraní poskytovatele.
 
-1. Nainstaluje připnuté vývojové závislosti přes `npm ci`.
-2. Ověří formátování, testy a integritu převzatých knihoven.
-3. Vytvoří samostatné HTML do `docs/`.
-4. Po úspěšných kontrolách automaticky nasadí pouze `docs/` na GitHub Pages.
+Na některých lokálních či soukromých originách nemusí prohlížeč povolit IndexedDB,
+Web Locks nebo schránku. Aplikace používá náhradní paměť a omezení v rámci stránky;
+v takovém případě upozorní na omezení ukládání.
 
-Výsledné HTML se necommituje. Pull requesty projdou kontrolami bez nasazení.
-Jednorázově musí být v **Settings → Pages → Source** vybráno **GitHub Actions**;
-potom už další zveřejnění obstará push do `master`.
+## Commit a push
 
-## Lokální vývoj
+Každý push do `master` spustí [GitHub Actions](.github/workflows/ci.yml): instalaci
+připnutých závislostí, formátování, testy, kontrolu vendor souborů, sestavení
+a automatické nasazení na GitHub Pages. Pull requesty se pouze kontrolují.
 
-Node.js 22 nebo novější; pro samotné prohlížení webu Node.js není potřeba.
+Jednorázové nastavení: **Settings → Pages → Source → GitHub Actions**.
+Generované `docs/` se necommituje.
+
+## Vývoj
+
+Node.js 22 nebo novější:
 
 ```sh
 npm ci
-npm run build
+npm run check
 npm run preview
 ```
 
-Náhled běží na adrese vypsané v terminálu. Samostatný soubor `docs/index.html`
-lze místo toho otevřít v prohlížeči dvojklikem.
-
 ```sh
-npm test           # datové, workerové a buildové testy
-npm run format    # formátování vlastních zdrojů
-npm run check     # stejná sada kontrol a build jako v CI
+npm test                # deterministické testy bez volání veřejného API
+npm run build           # samostatné HTML do docs/
+npm run format          # formátování vlastních zdrojů
+npm run vendor:check    # kontrolní součty knihoven a licencí
 ```
-
-## Struktura
 
 ```text
-.github/workflows/     automatické kontroly a nasazení
-src/
-  app/                 vytvoření aplikace a jejího stavu
-  core/                čisté datové a formátovací funkce
-  data/                CSV worker a územní číselník
-  features/            načítání, cache, obce, ukazatele, grafy a exporty
-  lib/                 rozhraní k vloženým knihovnám
-  styles/              čitelné zdrojové styly
-  main.js              vstup aplikace
-  template.html        struktura stránky
-scripts/               build, náhled a kontrola vendor souborů
-test/                  automatické testy a malé lokální fixture
-vendor/                připnuté knihovny, licence a SHA-256 manifest
-documentation/         návody, architektura, zdroje a obrázky
-docs/                  generovaný web; ignorovaný v Gitu
+src/app/        životní cyklus aplikace, výběr a sdílení stavu
+src/core/       datová kostka, projekce grafů, HTTP fronta a rate limiting
+src/data/       DataStat, obecná CSV čtečka, datové profily, cache a worker
+src/i18n/       čeština, anglický slovník a lokalizace rozhraní
+src/ui/         katalog, dimenze, grafy, tabulky, import a export
+src/styles/     responzivní vzhled
+scripts/        build, lokální náhled a kontrola knihoven
+test/           datové, HTTP, workerové a buildové testy
+vendor/         připnuté knihovny, zdrojové URL, SHA-256 a licence
+documentation/  návod, architektura a datová omezení
+docs/           generovaný výstup; ignorovaný v Gitu
 ```
 
-## Licence a data
+## Licence
 
-Vlastní kód: [MIT](LICENSE), © 2026 Martin Rotter.
-Převzaté knihovny mají [samostatné licence a oznámení](THIRD_PARTY_NOTICES.md), které
-jsou přiložené také ve výsledném HTML. Licence aplikace nemění podmínky dat ČSÚ.
-Nejde o oficiální aplikaci Českého statistického úřadu.
+Vlastní kód [MIT](LICENSE), © 2026 Martin Rotter. Použité knihovny jsou bezplatné:
+ECharts (Apache-2.0), Tabulator a Papa Parse (MIT). Jejich licence a další oznámení
+jsou v [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) i ve výsledném HTML.
+Licence aplikace nemění podmínky zdrojových dat.
